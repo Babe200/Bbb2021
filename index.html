@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نتائج البكالوريا</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            background-color: #f7f7f7;
+            text-align: center;
+            direction: rtl;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            background: white;
+            display: inline-block;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>البحث عن نتائج البكالوريا 2021</h1>
+    <input type="text" id="searchInput" placeholder="أدخل رقم الجلوس">
+    <button onclick="searchResult()">بحث</button>
+
+    <div class="result" id="resultContainer" style="display:none;"></div>
+
+    <script>
+        let allResults = [];
+
+        async function loadAllResults() {
+            const files = ['all_results_part1.json', 'all_results_part2.json'];
+            const loaded = await Promise.all(files.map(file => fetch(file).then(res => res.json())));
+            allResults = loaded.flat();
+        }
+
+        async function searchResult() {
+            if (allResults.length === 0) {
+                await loadAllResults();
+            }
+            const input = document.getElementById('searchInput').value.trim();
+            const result = allResults.find(entry => entry["رقم الجلوس"] == input);
+            const container = document.getElementById('resultContainer');
+            if (result) {
+                container.innerHTML = `
+                    <h3>الاسم: ${result["الاسم"]}</h3>
+                    <p>رقم الجلوس: ${result["رقم الجلوس"]}</p>
+                    <p>الولاية: ${result["الولاية"]}</p>
+                    <p>المدرسة: ${result["المدرسة"]}</p>
+                    <p>المركز: ${result["المركز"]}</p>
+                    <p>المعدل: ${result["المعدل"]}</p>
+                    <p>الرتبة على المدرسة: ${result["الرتبة على المدرسة"]}</p>
+                    <p>الرتبة على الولاية: ${result["الرتبة على الولاية"]}</p>
+                    <p>الرتبة الوطنية: ${result["الرتبة الوطنية"]}</p>
+                    <p>القرار: ${result["القرار"]}</p>
+                `;
+            } else {
+                container.innerHTML = '<p style="color:red">رقم الجلوس غير موجود</p>';
+            }
+            container.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
